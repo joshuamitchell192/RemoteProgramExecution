@@ -31,6 +31,9 @@ int main(int argc, char *argv[]){
     return 0;
 
 }
+
+/*---------------------------------------------------------------------------------------*/
+
 #ifdef _WIN32
 void commandLine(SOCKET ConnectSocket) {
 #elif __linux__
@@ -39,7 +42,7 @@ void commandLine(int ConnectSocket) {
 
     
     char input[BUFLEN];
-    char inputCopy[BUFLEN];
+    
     char recvbuf[2048];
     int iResult;
     int recvbuflen = 2048;
@@ -53,23 +56,14 @@ void commandLine(int ConnectSocket) {
         /*
             Send commands to the server until the user quits or an error occurs
         */
+
+        char ** commands = separateCommands(input);
+
         #ifdef __linux__
         signal(SIGCHLD, sig_child);
         pid_t pid;
         if ((pid = fork()) == 0) {
-            char delim[5] = " \n\0";
-            strcpy(inputCopy, input);
-
-            char *commands[64];
-            int k = 0;
-
-            // Seperate the input into an array of commands
-            commands[k] = strtok(inputCopy, delim);
             
-            while( commands[k] != NULL ) {
-                k++;
-                commands[k] = strtok(NULL, delim);
-            }
             char *response;
 
             if ((strcmp(commands[0], "quit") == 0) || (strcmp(commands[0], "-q") == 0)){
@@ -139,7 +133,11 @@ void commandLine(int ConnectSocket) {
         }
         
         #endif
-
+        
+        
+        #ifdef _WIN32
+        printf("returned commands: %s %s", commands[0], commands[1]);
+        #endif
         
         
     }
@@ -152,6 +150,34 @@ void commandLine(int ConnectSocket) {
     #endif
        
 }
+
+/*---------------------------------------------------------------------------------------*/
+
+char** separateCommands(char * input) {
+    char *inputCopy = input;
+    char delim[5] = " \n\0";
+    printf("input %s\n", input);
+    strcpy(inputCopy, input);
+
+    static char *commands[64];
+    memset(commands, '\0', 64);
+
+    int k = 0;
+
+    // Seperate the input into an array of commands
+    commands[k] = strtok(inputCopy, delim);
+    
+    while( commands[k] != NULL ) {
+        k++;
+        commands[k] = strtok(NULL, delim);
+    }
+
+    printf("Commands %s %s\n", commands[0], commands[1]);
+    return commands;
+}
+
+/*---------------------------------------------------------------------------------------*/
+
 
 #ifdef _WIN32
 char* receive(SOCKET ConnectSocket, int iResult, char *recvbuf, int recvbuflen) {
@@ -184,6 +210,9 @@ char* receive(int ConnectSocket, int iResult, char *recvbuf, int recvbuflen) {
         //else printf("receive failed with error: %d\n", WSAGetLastError());
     } while (iResult > 0);
 }
+
+/*---------------------------------------------------------------------------------------*/
+
 
 #ifdef _WIN32
 void sendToServer(SOCKET ConnectSocket, char *buffer, int buflen)
@@ -219,6 +248,8 @@ void sendToServer(int ConnectSocket, char *buffer, int buflen)
 }
 #endif
 
+/*---------------------------------------------------------------------------------------*/
+
 
 #ifdef __linux__
 void sig_child(int signum) {
@@ -231,6 +262,9 @@ void sig_child(int signum) {
     return;
 }
 #endif
+
+/*---------------------------------------------------------------------------------------*/
+
 
 #ifdef _WIN32
 void put(SOCKET ConnectSocket, char **commands, int k) {

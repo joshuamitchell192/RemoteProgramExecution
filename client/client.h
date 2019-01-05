@@ -32,6 +32,9 @@
 #include <sstream>
 #include <iterator>
 
+
+char** separateCommands(char * input);
+
 #ifdef _WIN32
 SOCKET connectServer(char *serverAddress);
 char* receive(SOCKET ConnectSocket, int iResult, char *recvbuf, int recvbuflen);

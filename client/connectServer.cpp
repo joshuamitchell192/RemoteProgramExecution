@@ -58,7 +58,11 @@ int connectServer(char *serverAddress) {
     }
     #endif
 
-    // Connect to server
+    /* 
+    
+        Connect to server 
+    
+    */
     iResult = connect(ConnectSocket, (struct sockaddr *)&Address, sizeof(Address));
     #ifdef _WIN32
     if (iResult == SOCKET_ERROR) {

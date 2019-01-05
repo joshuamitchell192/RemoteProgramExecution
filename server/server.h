@@ -35,6 +35,8 @@
 #include <sys/stat.h>
 #endif
 
+
+
 #ifdef _WIN32
 int main(int argc, char *argv[]);
 SOCKET serverStartup(struct sockaddr_in address);
